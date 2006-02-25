@@ -155,6 +155,16 @@ use overload
 
 Ricardo SIGNES, C<< <rjbs@cpan.org> >>
 
+=head1 TODO
+
+=over
+
+=item * add namespace support
+
+=item * remove dependency on wretched Data::UUID
+
+=back
+
 =head1 BUGS
 
 Please report any bugs or feature requests to
