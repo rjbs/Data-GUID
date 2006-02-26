@@ -3,7 +3,9 @@ package Data::GUID;
 use warnings;
 use strict;
 
+use Carp ();
 use Data::UUID;
+use Sub::Install;
 
 =head1 NAME
 
@@ -11,13 +13,13 @@ Data::GUID - globally unique identifiers
 
 =head1 VERSION
 
-version 0.00
+version 0.01
 
  $Id$
 
 =cut
 
-our $VERSION = '0.00';
+our $VERSION = '0.01';
 
 =head1 SYNOPSIS
 
@@ -150,6 +152,67 @@ use overload
   q{""} => 'as_string',
   '<=>' => sub { ($_[2] ? -1 : 1) * $_[0]->compare_to_guid($_[1]) },
   fallback => 1;
+
+=head1 IMPORTING
+
+Data::GUID does not export any subroutines by default, but it provides four
+routines which will be imported on request.  These routines may be called as
+class methods, or may be imported to be called as subroutines.
+
+=cut
+
+=head2 C< guid >
+
+  use Data::GUID qw(guid);
+
+  my $guid_1 = Data::GUID->guid;
+  my $guid_2 = guid;
+
+This routine returns a new Data::GUID object.
+
+=head2 C< guid_string >
+
+This returns the string representation of a new GUID.
+
+=head2 C< guid_hex >
+
+This returns the hex representation of a new GUID.
+
+=head2 C< guid_base64 >
+
+This returns the base64 representation of a new GUID.
+
+=cut
+
+{ no warnings 'once'; *guid = \&new; }
+
+for my $type (keys %from) {
+  my $method = "guid_$type";
+  my $as     = "as_$type";
+
+  no strict 'refs';
+  *$method = sub {
+    my ($class) = @_;
+    $class->new->$as;
+  }
+}
+
+my %exports = map { $_ => 1 } ('guid', map { "guid_$_" } keys %from);
+
+sub import {
+  my ($class, @to_export) = @_;
+  my $into = caller(0);
+  @to_export = keys %exports if grep { $_ eq ':all' } @to_export;
+  
+  for my $sub (@to_export) {
+    Carp::croak "$sub is not exported by Data::GUID" unless $exports{ $sub };
+    Sub::Install::install_sub({
+      code => sub { $class->$sub },
+      into => $into,
+      as   => $sub,
+    });
+  }
+}
 
 =head1 AUTHOR
 
