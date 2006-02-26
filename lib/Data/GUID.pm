@@ -70,12 +70,12 @@ These method returns a new Data::GUID object for the given GUID value.
 
 =head2 C< from_hex >
 
-  # note that a hex value is a string with out hyphens and with a leading 0x
-  my $guid = Data::GUID->from_string("0xB0470602A64B11DA863293EBF1C0E05A");
+  # note that a hex guid is a guid string without hyphens and with a leading 0x
+  my $guid = Data::GUID->from_hex("0xB0470602A64B11DA863293EBF1C0E05A");
 
 =head2 C< from_base64 >
 
-  my $guid = Data::GUID->from_string("sEcGAqZLEdqGMpPr8cDgWg==");
+  my $guid = Data::GUID->from_base64("sEcGAqZLEdqGMpPr8cDgWg==");
 
 =cut
 

@@ -4,5 +4,6 @@ Makefile.PL
 README
 lib/Data/GUID.pm
 t/00-load.t
+t/basic.t
 t/pod-coverage.t
 t/pod.t
