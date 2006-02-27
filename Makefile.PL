@@ -9,8 +9,9 @@ WriteMakefile(
     ABSTRACT_FROM       => 'lib/Data/GUID.pm',
     PL_FILES            => {},
     PREREQ_PM => {
-        'Test::More' => 0,
-        'Data::UUID' => 0.13,
+        'Data::UUID'   => 0.13,
+        'Sub::Install' => 0.03,
+        'Test::More'   => 0,
     },
     dist                => { COMPRESS => 'gzip -9f', SUFFIX => 'gz', },
     clean               => { FILES => 'Data-GUID-* cover_db' },
