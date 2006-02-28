@@ -1,5 +1,10 @@
 Revision history for Data-GUID
 
+0.02    2006-02-27 20:00
+        validate from_X input and throw exceptions
+        first-draft _GUID routine to sate ADAMK
+        correct prereqs (thanks, DWHEELER!)
+
 0.01    2006-02-26 23:20
         fixes to documentation (thanks, HDP!)
         added guid_* methods/subs and import routine
