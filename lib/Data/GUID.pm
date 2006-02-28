@@ -144,8 +144,12 @@ sub _from_multitype {
     my ($class, $value) = @_;
     return $value if eval { $value->isa('Data::GUID') };
 
+    my $value_string = defined $value ? qq{"$value"} : 'undef';
+
     # The only good ref is a blessed ref, and only into our denomination!
-    Carp::croak qq{"$value" is not a valid GUID $what} if (ref $value);
+    if (my $ref = ref $value) {
+      Carp::croak "a $ref reference is not a valid GUID $what"
+    }
     
     for my $type (@$types) {
       my $from = "from_$type";
@@ -153,7 +157,7 @@ sub _from_multitype {
       return $guid if $guid;
     }
 
-    Carp::croak qq{"$value" is not a valid GUID $what} if (ref $value);
+    Carp::croak "$value_string is not a valid GUID $what";
   }
 }
 
