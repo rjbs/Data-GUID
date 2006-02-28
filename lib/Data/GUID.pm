@@ -262,7 +262,7 @@ This returns the base64 representation of a new GUID.
 
 =cut
 
-{ no warnings 'once'; *guid = \&new; }
+Sub::Install::install_sub({ code => 'new', as => 'guid' });
 
 for my $type (keys %type) {
   my $method = "guid_$type";
@@ -281,7 +281,8 @@ sub _curry_class {
 }
 
 my %exports
-  = map { $_ => sub { _curry_class($_[0], $_) } } map { "guid_$_" } keys %type;
+  = map { $_ => sub { _curry_class($_[0], $_) } } 
+    ((map { "guid_$_" } keys %type), 'guid');
 
 sub import {
   my ($class, @to_export) = @_;
