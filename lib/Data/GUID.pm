@@ -79,17 +79,14 @@ cases, these methods throw an exception if given invalid input.
 
 This method returns a new Data::GUID object if given a Data::UUID value.
 Because Data::UUID values are not blessed and because Data::UUID provides no
-validation method, this method will only throw an exception if the given data
-is of the wrong size.
+validation method, this method will not throw an exception if given bogus
+input.
 
 =cut
 
 sub from_data_uuid {
-  my ($class, $value) = @_;
-
-  my $length = do { use bytes; defined $value ? length $value : 0; };
-  Carp::croak "given value is not a valid Data::UUID value" if $length != 16;
-  bless \$value => $class;
+  my ($class, $uuid) = @_;
+  bless \$uuid => $class;
 }
 
 my $hex    = qr/[0-9A-F]/i;
@@ -110,7 +107,6 @@ sub _install_from_method {
 
   my $our_from_code = sub { 
     my ($class, $string) = @_;
-    $string ||= ''; # to avoid (undef =~) warning
     Carp::croak qq{"$string" is not a valid $type GUID} if $string !~ $regex;
     $class->from_data_uuid( $_uuid_gen->$alien_from_method($string) );
   };
@@ -138,34 +134,22 @@ do {
   }
 };
 
-sub _from_multitype {
-  my ($class, @types) = @_;
-  sub {
-    my ($class, $value) = @_;
-    return $value if eval { $value->isa('Data::GUID') };
+sub _GUID {
+  my ($class, $value) = @_;
+  return $value if eval { $value->isa('Data::GUID') };
 
-    # The only good ref is a blessed ref, and only into our denomination!
-    return if (ref $value);
-    
-    for my $type (@types) {
-      my $from = "from_$type";
-      my $guid = eval { $class->$from($value); };
-      return $guid if $guid;
-    }
-
-    return;
+  # The only good ref is a blessed ref, and only into our denomination!
+  return if (ref $value);
+  
+  for my $type (keys %type) {
+    my $from = "from_$type";
+    my $guid = eval { $class->$from($value); };
+    return $guid if $guid;
   }
+
+  # if all else fails, we know 'from_data_uuid' will work
+  $class->from_data_uuid($value);
 }
-
-Sub::Install::install_sub({
-  code => __PACKAGE__->_from_multitype(keys %type),
-  as   => 'from_any_string',
-});
-
-Sub::Install::install_sub({
-  code => __PACKAGE__->_from_multitype((keys %type), 'data_uuid'),
-  as   => 'best_guest',
-});
 
 =head1 GUIDS INTO STRINGS
 
@@ -275,14 +259,9 @@ for my $type (keys %type) {
   }
 }
 
-sub _curry_class {
-  my ($class, $subname) = @_;
-  sub { $class->$subname };
-}
+my %exports = map { $_ => 1 } ('guid', map { "guid_$_" } keys %type);
 
-my %exports
-  = map { $_ => sub { _curry_class($_[0], $_) } } 
-    ((map { "guid_$_" } keys %type), 'guid');
+$exports{_GUID} = 1;
 
 sub import {
   my ($class, @to_export) = @_;
