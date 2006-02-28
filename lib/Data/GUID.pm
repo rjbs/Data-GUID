@@ -79,14 +79,17 @@ cases, these methods throw an exception if given invalid input.
 
 This method returns a new Data::GUID object if given a Data::UUID value.
 Because Data::UUID values are not blessed and because Data::UUID provides no
-validation method, this method will not throw an exception if given bogus
-input.
+validation method, this method will only throw an exception if the given data
+is of the wrong size.
 
 =cut
 
 sub from_data_uuid {
-  my ($class, $uuid) = @_;
-  bless \$uuid => $class;
+  my ($class, $value) = @_;
+
+  my $length = do { use bytes; length $value; };
+  Carp::croak "given value is not a valid Data::UUID value" if $length != 16;
+  bless \$value => $class;
 }
 
 my $hex    = qr/[0-9A-F]/i;
@@ -141,14 +144,13 @@ sub _GUID {
   # The only good ref is a blessed ref, and only into our denomination!
   return if (ref $value);
   
-  for my $type (keys %type) {
+  for my $type ((keys %type), 'data_uuid') {
     my $from = "from_$type";
     my $guid = eval { $class->$from($value); };
     return $guid if $guid;
   }
 
-  # if all else fails, we know 'from_data_uuid' will work
-  $class->from_data_uuid($value);
+  return;
 }
 
 =head1 GUIDS INTO STRINGS
