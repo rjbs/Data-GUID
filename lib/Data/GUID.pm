@@ -138,21 +138,34 @@ do {
   }
 };
 
-sub _GUID {
-  my ($class, $value) = @_;
-  return $value if eval { $value->isa('Data::GUID') };
+sub _from_multitype {
+  my ($class, @types) = @_;
+  sub {
+    my ($class, $value) = @_;
+    return $value if eval { $value->isa('Data::GUID') };
 
-  # The only good ref is a blessed ref, and only into our denomination!
-  return if (ref $value);
-  
-  for my $type ((keys %type), 'data_uuid') {
-    my $from = "from_$type";
-    my $guid = eval { $class->$from($value); };
-    return $guid if $guid;
+    # The only good ref is a blessed ref, and only into our denomination!
+    return if (ref $value);
+    
+    for my $type (@types) {
+      my $from = "from_$type";
+      my $guid = eval { $class->$from($value); };
+      return $guid if $guid;
+    }
+
+    return;
   }
-
-  return;
 }
+
+Sub::Install::install_sub({
+  code => __PACKAGE__->_from_multitype(keys %type),
+  as   => 'from_any_string',
+});
+
+Sub::Install::install_sub({
+  code => __PACKAGE__->_from_multitype((keys %type), 'data_uuid'),
+  as   => 'best_guest',
+});
 
 =head1 GUIDS INTO STRINGS
 
@@ -262,9 +275,13 @@ for my $type (keys %type) {
   }
 }
 
-my %exports = map { $_ => 1 } ('guid', map { "guid_$_" } keys %type);
+sub _curry_class {
+  my ($class, $subname) = @_;
+  sub { $class->$subname };
+}
 
-$exports{_GUID} = 1;
+my %exports
+  = map { $_ => sub { _curry_class($_[0], $_) } } map { "guid_$_" } keys %type;
 
 sub import {
   my ($class, @to_export) = @_;
