@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 21;
+use Test::More tests => 25;
 
 BEGIN { use_ok('Data::GUID'); }
 
@@ -57,6 +57,22 @@ ok(
     "guid on rhs of unbalanced <=> is (x * -1)",
   );
 }
+
+{
+  my $uuid = Data::UUID->new->create;
+
+  isa_ok(
+    Data::GUID->from_data_uuid($uuid),
+    'Data::GUID',
+    "from_data_uuid",
+  );
+
+  for my $value (undef, '', 'foo') {
+    eval { Data::GUID->from_data_uuid($value) };
+    like($@, qr/not a valid Data::UUID/, "invalid Data::UUID value rejected");
+  }
+}
+
 
 for my $type (qw(hex string base64)) {
   my $as   = "as_$type";
