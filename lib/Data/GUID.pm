@@ -87,7 +87,7 @@ is of the wrong size.
 sub from_data_uuid {
   my ($class, $value) = @_;
 
-  my $length = do { use bytes; length $value; };
+  my $length = do { use bytes; defined $value ? length $value : 0; };
   Carp::croak "given value is not a valid Data::UUID value" if $length != 16;
   bless \$value => $class;
 }
@@ -110,6 +110,7 @@ sub _install_from_method {
 
   my $our_from_code = sub { 
     my ($class, $string) = @_;
+    $string ||= ''; # to avoid (undef =~) warning
     Carp::croak qq{"$string" is not a valid $type GUID} if $string !~ $regex;
     $class->from_data_uuid( $_uuid_gen->$alien_from_method($string) );
   };
