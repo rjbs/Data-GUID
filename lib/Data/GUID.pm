@@ -281,7 +281,8 @@ sub _curry_class {
 }
 
 my %exports
-  = map { $_ => sub { _curry_class($_[0], $_) } } map { "guid_$_" } keys %type;
+  = map { $_ => sub { _curry_class($_[0], $_) } } 
+    ((map { "guid_$_" } keys %type), 'guid');
 
 sub import {
   my ($class, @to_export) = @_;
