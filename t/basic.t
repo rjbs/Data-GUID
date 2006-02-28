@@ -3,38 +3,34 @@
 use strict;
 use warnings;
 
-use Test::More tests => 14;
+use Test::More tests => 21;
 
 BEGIN { use_ok('Data::GUID'); }
 
 my $guid = Data::GUID->new;
 isa_ok($guid, 'Data::GUID');
 
-my $hex = qr/[0-9A-F]/i;
-
 like(
   $guid->as_string,
-  qr/\A$hex{8}-(?:$hex{4}-){3}$hex{12}\z/,
+  Data::GUID->__type_regex('string'),
   "GUID as_string looks OK",
 );
 
 like(
   "$guid",
-  qr/\A$hex{8}-(?:$hex{4}-){3}$hex{12}\z/,
+  Data::GUID->__type_regex('string'),
   "stringified GUID looks OK",
 );
 
 like(
   $guid->as_hex,
-  qr/\A0x$hex{32}\z/,
+  Data::GUID->__type_regex('hex'),
   "GUID as_hex looks OK",
 );
 
-my $base64 = qr{[A-Z0-9+/=]}i;
-
 like(
   $guid->as_base64,
-  qr/\A$base64{24}\z/,
+  Data::GUID->__type_regex('base64'),
   "GUID as_hex looks OK",
 );
 
@@ -52,6 +48,16 @@ ok(
   );
 }
 
+{
+  my $non_guid_value = 10;
+
+  is(
+    (($non_guid_value <=> $guid) * +1),
+    (($guid <=> $non_guid_value) * -1),
+    "guid on rhs of unbalanced <=> is (x * -1)",
+  );
+}
+
 for my $type (qw(hex string base64)) {
   my $as   = "as_$type";
   my $from = "from_$type";
@@ -62,5 +68,13 @@ for my $type (qw(hex string base64)) {
     0,
     "original guid is equal to copy round-tripped via $type",
   );
+
+  my $guid_str_method = "guid_$type";
+  my $guid_str = Data::GUID->$guid_str_method;
+
+  eval { Data::GUID->$from("invalid"); };
+  like($@, qr/not a valid $type/, "invalid input to $from croaks");
+
+  like($guid_str, Data::GUID->__type_regex($type), "guid_$type method ok");
 }
 
