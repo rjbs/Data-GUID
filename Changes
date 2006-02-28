@@ -3,7 +3,7 @@ Revision history for Data-GUID
 0.03    2006-02-28 20:00
         numerous little bugfixes in guid_*
         best_guess and from_any_string
-        more complete testing
+        100% test coverage
 
 0.02    2006-02-27 20:00
         validate from_X input and throw exceptions
