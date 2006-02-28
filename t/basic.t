@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 25;
+use Test::More tests => 31;
 
 BEGIN { use_ok('Data::GUID'); }
 
@@ -88,8 +88,10 @@ for my $type (qw(hex string base64)) {
   my $guid_str_method = "guid_$type";
   my $guid_str = Data::GUID->$guid_str_method;
 
-  eval { Data::GUID->$from("invalid"); };
-  like($@, qr/not a valid $type/, "invalid input to $from croaks");
+  for my $value (undef, '', 'foo') {
+    eval { Data::GUID->$from($value); };
+    like($@, qr/not a valid $type/, "invalid input to $from croaks");
+  }
 
   like($guid_str, Data::GUID->__type_regex($type), "guid_$type method ok");
 }

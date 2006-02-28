@@ -139,32 +139,56 @@ do {
 };
 
 sub _from_multitype {
-  my ($class, @types) = @_;
+  my ($class, $what, $types) = @_;
   sub {
     my ($class, $value) = @_;
     return $value if eval { $value->isa('Data::GUID') };
 
     # The only good ref is a blessed ref, and only into our denomination!
-    return if (ref $value);
+    Carp::croak qq{"$value" is not a valid GUID $what} if (ref $value);
     
-    for my $type (@types) {
+    for my $type (@$types) {
       my $from = "from_$type";
       my $guid = eval { $class->$from($value); };
       return $guid if $guid;
     }
 
-    return;
+    Carp::croak qq{"$value" is not a valid GUID $what} if (ref $value);
   }
 }
 
+=head2 C< from_any_string >
+
+  my $string = get_string_from_ether;
+
+  my $guid = Data::GUID->from_any_string($string);
+
+This method returns a Data::GUID object for the given string, trying all known
+string interpretations.  An exception is thrown if the value is not a valid
+GUID string.
+
+=cut
+
 Sub::Install::install_sub({
-  code => __PACKAGE__->_from_multitype(keys %type),
+  code => __PACKAGE__->_from_multitype('string', [ keys %type ]),
   as   => 'from_any_string',
 });
 
+=head2 C< best_guess >
+
+  my $value = get_value_from_ether;
+
+  my $guid = Data::GUID->best_guess($value);
+
+This method returns a Data::GUID object for the given value, trying everything
+it can.  It works like C<L</from_any_string>>, but will also accept Data::UUID
+values.  (In effect, this means that any sixteen byte value is acceptable.)
+
+=cut
+
 Sub::Install::install_sub({
-  code => __PACKAGE__->_from_multitype((keys %type), 'data_uuid'),
-  as   => 'best_guest',
+  code => __PACKAGE__->_from_multitype('value', [ (keys %type), 'data_uuid' ]),
+  as   => 'best_guess',
 });
 
 =head1 GUIDS INTO STRINGS
@@ -233,18 +257,20 @@ use overload
 
 =head1 IMPORTING
 
-Data::GUID does not export any subroutines by default, but it provides four
+Data::GUID does not export any subroutines by default, but it provides a few
 routines which will be imported on request.  These routines may be called as
-class methods, or may be imported to be called as subroutines.
+class methods, or may be imported to be called as subroutines.  Calling them by
+fully qualified name is incorrect.
+
+  use Data::GUID qw(guid);
+
+  my $guid = guid;             # OK
+  my $guid = Data::GUID->guid; # OK
+  my $guid = Data::GUID::guid; # NOT OK
 
 =cut
 
 =head2 C< guid >
-
-  use Data::GUID qw(guid);
-
-  my $guid_1 = Data::GUID->guid;
-  my $guid_2 = guid;
 
 This routine returns a new Data::GUID object.
 
@@ -276,19 +302,24 @@ for my $type (keys %type) {
 }
 
 sub _curry_class {
-  my ($class, $subname) = @_;
-  sub { $class->$subname };
+  my ($class, $subname, $eval) = @_;
+  return $eval ? sub { eval { $class->$subname(@_) } }
+               : sub { $class->$subname(@_) };
 }
 
 my %exports
-  = map { $_ => sub { _curry_class($_[0], $_) } } 
+  = map { my $method = $_; $_ => sub { _curry_class($_[0], $method) } } 
     ((map { "guid_$_" } keys %type), 'guid');
+
+# "secret export" for ADAMK; it will be made nicer and documented in a later
+# release -- rjbs, 2006-02-28
+$exports{_GUID} = sub { _curry_class($_[0], 'from_any_string', 1) };
 
 sub import {
   my ($class, @to_export) = @_;
   my $into = caller(0);
   @to_export = keys %exports if grep { $_ eq ':all' } @to_export;
-  
+
   for my $sub (@to_export) {
     Carp::croak qq{"$sub" is not exported by the Data::GUID module}
       unless $exports{ $sub };
