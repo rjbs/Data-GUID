@@ -92,14 +92,18 @@ sub from_data_uuid {
   bless \$value => $class;
 }
 
-my $hex    = qr/[0-9A-F]/i;
-my $base64 = qr{[A-Z0-9+/=]}i;
+my ($hex, $base64, %type);
 
-my %type = ( # uuid_method  validation_regex
-  string => [ 'string',     qr/\A$hex{8}-(?:$hex{4}-){3}$hex{12}\z/, ],
-  hex    => [ 'hexstring',  qr/\A0x$hex{32}\z/,                      ],
-  base64 => [ 'b64string',  qr/\A$base64{24}\z/,                     ],
-);
+BEGIN { # because %type must be populated for method/exporter generation
+  $hex    = qr/[0-9A-F]/i;
+  $base64 = qr{[A-Z0-9+/=]}i;
+
+  %type = ( # uuid_method  validation_regex
+    string => [ 'string',     qr/\A$hex{8}-(?:$hex{4}-){3}$hex{12}\z/, ],
+    hex    => [ 'hexstring',  qr/\A0x$hex{32}\z/,                      ],
+    base64 => [ 'b64string',  qr/\A$base64{24}\z/,                     ],
+  );
+}
 
 # provided for test scripts
 sub __type_regex { shift; $type{$_[0]}[1] }
@@ -131,12 +135,14 @@ sub _install_as_method {
   Sub::Install::install_sub({ code => $our_to_method, as => "as_$type" });
 }
 
-do {
-  while (my ($type, $profile) = each %type) {
-    _install_from_method($type, @$profile);
-    _install_as_method  ($type, @$profile);
-  }
-};
+BEGIN { # possibly unnecessary -- rjbs, 2006-03-11
+  do {
+    while (my ($type, $profile) = each %type) {
+      _install_from_method($type, @$profile);
+      _install_as_method  ($type, @$profile);
+    }
+  };
+}
 
 sub _from_multitype {
   my ($class, $what, $types) = @_;
@@ -173,10 +179,12 @@ GUID string.
 
 =cut
 
-Sub::Install::install_sub({
-  code => __PACKAGE__->_from_multitype('string', [ keys %type ]),
-  as   => 'from_any_string',
-});
+BEGIN { # possibly unnecessary -- rjbs, 2006-03-11
+  Sub::Install::install_sub({
+    code => __PACKAGE__->_from_multitype('string', [ keys %type ]),
+    as   => 'from_any_string',
+  });
+}
 
 =head2 C< best_guess >
 
@@ -190,10 +198,12 @@ values.  (In effect, this means that any sixteen byte value is acceptable.)
 
 =cut
 
-Sub::Install::install_sub({
-  code => __PACKAGE__->_from_multitype('value', [ (keys %type), 'data_uuid' ]),
-  as   => 'best_guess',
-});
+BEGIN { # possibly unnecessary -- rjbs, 2006-03-11
+  Sub::Install::install_sub({
+    code => __PACKAGE__->_from_multitype('value', [(keys %type), 'data_uuid']),
+    as   => 'best_guess',
+  });
+}
 
 =head1 GUIDS INTO STRINGS
 
@@ -292,16 +302,18 @@ This returns the base64 representation of a new GUID.
 
 =cut
 
-Sub::Install::install_sub({ code => 'new', as => 'guid' });
+BEGIN {
+  Sub::Install::install_sub({ code => 'new', as => 'guid' });
 
-for my $type (keys %type) {
-  my $method = "guid_$type";
-  my $as     = "as_$type";
+  for my $type (keys %type) {
+    my $method = "guid_$type";
+    my $as     = "as_$type";
 
-  no strict 'refs';
-  *$method = sub {
-    my ($class) = @_;
-    $class->new->$as;
+    no strict 'refs';
+    *$method = sub {
+      my ($class) = @_;
+      $class->new->$as;
+    }
   }
 }
 
@@ -311,29 +323,19 @@ sub _curry_class {
                : sub { $class->$subname(@_) };
 }
 
-my %exports
-  = map { my $method = $_; $_ => sub { _curry_class($_[0], $method) } } 
+my %exports;
+BEGIN {
+  %exports
+    = map { my $method = $_; $_ => sub { _curry_class($_[0], $method) } } 
     ((map { "guid_$_" } keys %type), 'guid');
-
-# "secret export" for ADAMK; it will be made nicer and documented in a later
-# release -- rjbs, 2006-02-28
-$exports{_GUID} = sub { _curry_class($_[0], 'from_any_string', 1) };
-
-sub import {
-  my ($class, @to_export) = @_;
-  my $into = caller(0);
-  @to_export = keys %exports if grep { $_ eq ':all' } @to_export;
-
-  for my $sub (@to_export) {
-    Carp::croak qq{"$sub" is not exported by the Data::GUID module}
-      unless $exports{ $sub };
-    Sub::Install::install_sub({
-      code => $exports{ $sub }->($class),
-      into => $into,
-      as   => $sub,
-    });
-  }
 }
+
+use Sub::Exporter -setup => {
+  exports => {
+    %exports, # defined just above
+    guid_from_anything => sub { _curry_class($_[0], 'from_any_string', 1) },
+  }
+};
 
 =head1 AUTHOR
 
