@@ -22,8 +22,9 @@ for my $method (@multipass_methods) {
     eval { Data::GUID->$method($_); };
     like($@, qr/not a valid GUID/, "bogus value makes $method carp");
 
-    # for coverage; not guaranteed
-    my $_guid = eval { _GUID($_) }; is($@, ''); is($_guid, undef);
+    my $_guid = eval { guid_from_anything($_) };
+    is($@, '', "guid_from_anything doesn't carp on bad data...");
+    is($_guid, undef, "...but doesn't return anything either");
   }
 
   for my $type (qw(string base64 hex)) {
