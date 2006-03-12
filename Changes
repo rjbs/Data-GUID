@@ -1,5 +1,8 @@
 Revision history for Data-GUID
 
+0.04    2006-03-12 12:00
+        replace custom exporter with Sub::Exporter
+
 0.03    2006-02-28 20:00
         numerous little bugfixes in guid_*
         best_guess and from_any_string

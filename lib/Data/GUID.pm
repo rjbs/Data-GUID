@@ -300,6 +300,10 @@ This returns the hex representation of a new GUID.
 
 This returns the base64 representation of a new GUID.
 
+=head2 C< guid_from_anything >
+
+This returns the result of calling the C<L</from_any_string>> method.
+
 =cut
 
 BEGIN {
@@ -337,10 +341,6 @@ use Sub::Exporter -setup => {
   }
 };
 
-=head1 AUTHOR
-
-Ricardo SIGNES, C<< <rjbs@cpan.org> >>
-
 =head1 TODO
 
 =over
@@ -352,6 +352,10 @@ Ricardo SIGNES, C<< <rjbs@cpan.org> >>
 =item * make it work on 5.005
 
 =back
+
+=head1 AUTHOR
+
+Ricardo SIGNES, C<< <rjbs@cpan.org> >>
 
 =head1 BUGS
 
