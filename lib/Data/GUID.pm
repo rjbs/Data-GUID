@@ -13,13 +13,13 @@ Data::GUID - globally unique identifiers
 
 =head1 VERSION
 
-version 0.04
+version 0.041
 
  $Id$
 
 =cut
 
-our $VERSION = '0.04';
+our $VERSION = '0.041';
 
 =head1 SYNOPSIS
 
@@ -313,11 +313,13 @@ BEGIN {
     my $method = "guid_$type";
     my $as     = "as_$type";
 
-    no strict 'refs';
-    *$method = sub {
-      my ($class) = @_;
-      $class->new->$as;
-    }
+    Sub::Install::install_sub({
+      as   => $method,
+      code => sub {
+        my ($class) = @_;
+        $class->new->$as;
+      },
+    });
   }
 }
 

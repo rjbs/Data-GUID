@@ -1,5 +1,8 @@
 Revision history for Data-GUID
 
+0.041   2006-11-06
+        remove traces of old custom exporter
+
 0.04    2006-03-12 12:00
         replace custom exporter with Sub::Exporter
 
