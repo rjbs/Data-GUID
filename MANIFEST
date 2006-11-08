@@ -10,3 +10,4 @@ t/multipass_from.t
 t/pod-coverage.t
 t/pod.t
 t/perl-critic.t
+LICENSE
