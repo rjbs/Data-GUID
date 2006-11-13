@@ -13,13 +13,13 @@ Data::GUID - globally unique identifiers
 
 =head1 VERSION
 
-version 0.041
+version 0.042
 
  $Id$
 
 =cut
 
-our $VERSION = '0.041';
+our $VERSION = '0.042';
 
 =head1 SYNOPSIS
 
@@ -114,7 +114,7 @@ sub _install_from_method {
 
   my $our_from_code = sub { 
     my ($class, $string) = @_;
-    $string ||= ''; # to avoid (undef =~) warning
+    $string ||= q{}; # to avoid (undef =~) warning
     Carp::croak qq{"$string" is not a valid $type GUID} if $string !~ $regex;
     $class->from_data_uuid( $_uuid_gen->$alien_from_method($string) );
   };
