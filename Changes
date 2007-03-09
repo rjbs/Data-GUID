@@ -1,0 +1,29 @@
+Revision history for Data-GUID
+
+0.043   2007-03-08
+        require newer Data::UUID to avoid broken Debian ersatz Data::UUID
+        included in libossp-uuid-perl
+
+0.042   2006-11-13
+        remove traces of old custom exporter
+        packaging improvements
+
+0.04    2006-03-12 12:00
+        replace custom exporter with Sub::Exporter
+
+0.03    2006-02-28 20:00
+        numerous little bugfixes in guid_*
+        best_guess and from_any_string
+        100% test coverage
+
+0.02    2006-02-27 20:00
+        validate from_X input and throw exceptions
+        first-draft _GUID routine to sate ADAMK
+        correct prereqs (thanks, DWHEELER!)
+
+0.01    2006-02-26 23:20
+        fixes to documentation (thanks, HDP!)
+        added guid_* methods/subs and import routine
+
+0.00    2006-02-25 17:25
+        first release, all skin and bones
