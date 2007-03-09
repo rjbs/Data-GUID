@@ -13,13 +13,13 @@ Data::GUID - globally unique identifiers
 
 =head1 VERSION
 
-version 0.043
+version 0.044
 
  $Id$
 
 =cut
 
-our $VERSION = '0.043';
+our $VERSION = '0.044';
 
 =head1 SYNOPSIS
 
