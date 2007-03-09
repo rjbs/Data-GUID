@@ -10,7 +10,7 @@ WriteMakefile(
     LICENSE             => 'perl',
     PL_FILES            => {},
     PREREQ_PM => {
-        'Data::UUID'    => 0.13,
+        'Data::UUID'    => 1.148,
         'Sub::Exporter' => 0.90,
         'Sub::Install'  => 0.03,
         'Test::More'    => 0,
