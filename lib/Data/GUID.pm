@@ -15,8 +15,6 @@ Data::GUID - globally unique identifiers
 
 version 0.044
 
- $Id$
-
 =cut
 
 our $VERSION = '0.044';
