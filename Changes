@@ -1,5 +1,8 @@
 Revision history for Data-GUID
 
+0.045   2009-01-16
+        add repo info to metadata
+
 0.044   2007-03-08
         require newer Data::UUID to avoid broken Debian ersatz Data::UUID
         included in libossp-uuid-perl

@@ -15,6 +15,14 @@ WriteMakefile(
         'Sub::Install'  => 0.03,
         'Test::More'    => 0,
     },
+    (eval { ExtUtils::MakeMaker->VERSION(6.46) }
+      ? (META_MERGE => {
+          resources => {
+            Repository => 'http://github.com/rjbs/data-guid'
+          }
+        })
+      : ()
+    ),
     dist                => { COMPRESS => 'gzip -9f', SUFFIX => 'gz', },
     clean               => { FILES => 'Data-GUID-* cover_db' },
 );

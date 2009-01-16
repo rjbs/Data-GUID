@@ -1,4 +1,4 @@
-Data-GUID
+Data-GUID 0.045
 
 Data::GUID provides an alternate interface to Data::UUID for creating and
 comparing globally unique IDs.
