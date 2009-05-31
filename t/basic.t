@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 31;
+use Test::More tests => 32;
 
 BEGIN { use_ok('Data::GUID'); }
 
@@ -96,3 +96,10 @@ for my $type (qw(hex string base64)) {
   like($guid_str, Data::GUID->__type_regex($type), "guid_$type method ok");
 }
 
+{
+  my $guid = Data::GUID->new;
+  my $str  = $guid->as_string;
+  $str =~ s/-//g;
+  my $copy = Data::GUID->from_string($str);
+  is($guid->as_string, $copy->as_string, "we can from_string a dash-less str");
+}

@@ -97,9 +97,9 @@ BEGIN { # because %type must be populated for method/exporter generation
   $base64 = qr{[A-Z0-9+/=]}i;
 
   %type = ( # uuid_method  validation_regex
-    string => [ 'string',     qr/\A$hex{8}-(?:$hex{4}-){3}$hex{12}\z/, ],
-    hex    => [ 'hexstring',  qr/\A0x$hex{32}\z/,                      ],
-    base64 => [ 'b64string',  qr/\A$base64{24}\z/,                     ],
+    string => [ 'string',     qr/\A$hex{8}-?(?:$hex{4}-?){3}$hex{12}\z/, ],
+    hex    => [ 'hexstring',  qr/\A0x$hex{32}\z/,                        ],
+    base64 => [ 'b64string',  qr/\A$base64{24}\z/,                       ],
   );
 }
 
