@@ -4,7 +4,7 @@ package Data::GUID::Generator::DataUUID;
 
 use Carp ();
 use Data::UUID;
-use Data::GUID::Via::DataUUID;
+use Data::GUID::Object::DataUUID;
 use Sub::Install;
 
 my $default;
@@ -22,12 +22,19 @@ sub new {
   return $self;
 }
 
+sub new_guid {
+  my $self = $_[0]->_self;
+
+  my $uuid_value = $self->_uuid_gen->create;
+  $self->from_data_uuid($uuid_value);
+}
+
 sub _uuid_gen { ${ $_[0] } }
 
 sub from_data_uuid {
   my ($class, $value) = @_;
 
-  return Data::GUID::Via::DataUUID->_construct($value);
+  return Data::GUID::Object::DataUUID->_construct($value);
 }
 
 my ($hex, $base64, %type);

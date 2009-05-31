@@ -1,6 +1,6 @@
 use warnings;
 use strict;
-package Data::GUID::Via::DataUUID;
+package Data::GUID::Object::DataUUID;
 # use base 'Data::GUID';
 
 use Carp ();
