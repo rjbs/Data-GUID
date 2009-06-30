@@ -8,26 +8,27 @@ use Data::UUID;
 use Sub::Install;
 
 sub _construct {
-  my ($class, $value) = @_;
+  my ($class, $ug, $value) = @_;
 
   my $length = do { use bytes; defined $value ? length $value : 0; };
   Carp::croak "given value is not a valid Data::UUID value" if $length != 16;
-  bless \$value => $class;
+  bless [ $ug, $value ] => $class;
 }
 
-sub as_base64 { Data::UUID->to_b64string($_[0]->as_binary) }
-sub as_binary { ${ $_[0] }                                 }
-sub as_hex    { Data::UUID->to_hexstring($_[0]->as_binary) }
-sub as_string { Data::UUID->to_string($_[0]->as_binary)    }
+sub as_base64 { $_[0][0]->to_b64string($_[0][1])            }
+sub as_binary { $_[0][1]                                    }
+sub as_hex    { $_[0][0]->to_hexstring($_[0][1])            }
+sub as_string { $_[0][0]->to_string($_[0][1])               }
 
 # XXX: I hate this whole "comparing GUIDs" notion. -- rjbs, 2009-05-30
 sub compare_to_guid {
   my ($self, $other) = @_;
 
-  my $other_binary
-    = eval { $other->isa('Data::GUID') } ? $other->as_binary : $other;
+  my $other_binary = eval {
+    $other->isa('Data::GUID') || $other->isa('Data::GUID::Object::DataUUID')
+  } ? $other->as_binary : $other;
 
-  Data::UUID->compare($self->as_binary, $other_binary);
+  $self->[0]->compare($self->as_binary, $other_binary);
 }
 
 use overload

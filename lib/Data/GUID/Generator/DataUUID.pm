@@ -32,9 +32,10 @@ sub new_guid {
 sub _uuid_gen { ${ $_[0] } }
 
 sub from_data_uuid {
-  my ($class, $value) = @_;
+  my ($invocant, $value) = @_;
+  my $gen = $invocant->_self->_uuid_gen;
 
-  return Data::GUID::Object::DataUUID->_construct($value);
+  return Data::GUID::Object::DataUUID->_construct($gen, $value);
 }
 
 my ($hex, $base64, %type);
