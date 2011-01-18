@@ -1,5 +1,8 @@
 Revision history for Data-GUID
 
+0.046   2011-01-18
+        add the ->{string,base64,hex}_guid_regex methods
+
 0.045   2009-01-16
         add repo info to metadata
 
