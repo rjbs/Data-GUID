@@ -1,9 +1,8 @@
 #!perl
-
 use strict;
 use warnings;
 
-use Test::More tests => 32;
+use Test::More 0.88;
 
 BEGIN { use_ok('Data::GUID'); }
 
@@ -12,25 +11,25 @@ isa_ok($guid, 'Data::GUID');
 
 like(
   $guid->as_string,
-  Data::GUID->__type_regex('string'),
+  Data::GUID->string_guid_regex,
   "GUID as_string looks OK",
 );
 
 like(
   "$guid",
-  Data::GUID->__type_regex('string'),
+  Data::GUID->string_guid_regex,
   "stringified GUID looks OK",
 );
 
 like(
   $guid->as_hex,
-  Data::GUID->__type_regex('hex'),
+  Data::GUID->hex_guid_regex,
   "GUID as_hex looks OK",
 );
 
 like(
   $guid->as_base64,
-  Data::GUID->__type_regex('base64'),
+  Data::GUID->base64_guid_regex,
   "GUID as_hex looks OK",
 );
 
@@ -38,15 +37,6 @@ ok(
   ($guid <=> $guid) == 0,
   "guid is equal to itself",
 );
-
-{
-  my $other_guid = Data::GUID->new;
-
-  ok(
-    ($guid <=> $other_guid) != 0,
-    "guid is not equal to a new guid",
-  );
-}
 
 {
   my $non_guid_value = 10;
@@ -73,7 +63,6 @@ ok(
   }
 }
 
-
 for my $type (qw(hex string base64)) {
   my $as   = "as_$type";
   my $from = "from_$type";
@@ -93,7 +82,8 @@ for my $type (qw(hex string base64)) {
     like($@, qr/not a valid $type/, "invalid input to $from croaks");
   }
 
-  like($guid_str, Data::GUID->__type_regex($type), "guid_$type method ok");
+  my $re_method = "$type\_guid_regex";
+  like($guid_str, Data::GUID->$re_method, "guid_$type method ok");
 }
 
 {
@@ -103,3 +93,5 @@ for my $type (qw(hex string base64)) {
   my $copy = Data::GUID->from_string($str);
   is($guid->as_string, $copy->as_string, "we can from_string a dash-less str");
 }
+
+done_testing;
