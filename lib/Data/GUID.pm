@@ -40,7 +40,7 @@ identifiers.
 
 =head1 GETTING A NEW GUID
 
-=head2 C< new >
+=head2 new
 
   my $guid = Data::GUID->new;
 
@@ -60,20 +60,20 @@ sub new {
 These method returns a new Data::GUID object for the given GUID value.  In all
 cases, these methods throw an exception if given invalid input.
 
-=head2 C< from_string >
+=head2 from_string
 
   my $guid = Data::GUID->from_string("B0470602-A64B-11DA-8632-93EBF1C0E05A");
 
-=head2 C< from_hex >
+=head2 from_hex
 
   # note that a hex guid is a guid string without hyphens and with a leading 0x
   my $guid = Data::GUID->from_hex("0xB0470602A64B11DA863293EBF1C0E05A");
 
-=head2 C< from_base64 >
+=head2 from_base64
 
   my $guid = Data::GUID->from_base64("sEcGAqZLEdqGMpPr8cDgWg==");
 
-=head2 C< from_data_uuid >
+=head2 from_data_uuid
 
 This method returns a new Data::GUID object if given a Data::UUID value.
 Because Data::UUID values are not blessed and because Data::UUID provides no
@@ -89,6 +89,19 @@ sub from_data_uuid {
   Carp::croak "given value is not a valid Data::UUID value" if $length != 16;
   bless \$value => $class;
 }
+
+=head1 IDENTIFYING GUIDS
+
+=head2 string_guid_regex
+
+=head2 hex_guid_regex
+
+=head2 base64_guid_regex
+
+These methods return regex objects that match regex strings of the appropriate
+type.
+
+=cut
 
 my ($hex, $base64, %type);
 
@@ -116,7 +129,7 @@ sub _install_from_method {
   my ($type, $alien_method, $regex) = @_;
   my $alien_from_method = "from_$alien_method";
 
-  my $our_from_code = sub { 
+  my $our_from_code = sub {
     my ($class, $string) = @_;
     $string ||= q{}; # to avoid (undef =~) warning
     Carp::croak qq{"$string" is not a valid $type GUID} if $string !~ $regex;
@@ -131,7 +144,7 @@ sub _install_as_method {
 
   my $alien_to_method = "to_$alien_method";
 
-  my $our_to_method = sub { 
+  my $our_to_method = sub {
     my ($self) = @_;
     $_uuid_gen->$alien_to_method( $self->as_binary );
   };
@@ -160,7 +173,7 @@ sub _from_multitype {
     if (my $ref = ref $value) {
       Carp::croak "a $ref reference is not a valid GUID $what"
     }
-    
+
     for my $type (@$types) {
       my $from = "from_$type";
       my $guid = eval { $class->$from($value); };
@@ -171,7 +184,7 @@ sub _from_multitype {
   }
 }
 
-=head2 C< from_any_string >
+=head2 from_any_string
 
   my $string = get_string_from_ether;
 
@@ -190,7 +203,7 @@ BEGIN { # possibly unnecessary -- rjbs, 2006-03-11
   });
 }
 
-=head2 C< best_guess >
+=head2 best_guess
 
   my $value = get_value_from_ether;
 
@@ -213,7 +226,7 @@ BEGIN { # possibly unnecessary -- rjbs, 2006-03-11
 
 These methods return various string representations of a GUID.
 
-=head2 C< as_string >
+=head2 as_string
 
 This method returns a "traditional" GUID/UUID string representation.  This is
 five hexadecimal strings, delimited by hyphens.  For example:
@@ -222,14 +235,14 @@ five hexadecimal strings, delimited by hyphens.  For example:
 
 This method is also used to stringify Data::GUID objects.
 
-=head2 C< as_hex >
+=head2 as_hex
 
 This method returns a plain hexadecimal representation of the GUID, with a
 leading C<0x>.  For example:
 
   0xB0470602A64B11DA863293EBF1C0E05A
 
-=head2 C< as_base64 >
+=head2 as_base64
 
 This method returns a base-64 string representation of the GUID.  For example:
 
@@ -239,7 +252,7 @@ This method returns a base-64 string representation of the GUID.  For example:
 
 =head1 OTHER METHODS
 
-=head2 C< compare_to_guid >
+=head2 compare_to_guid
 
 This method compares a GUID to another GUID and returns -1, 0, or 1, as do
 other comparison routines.
@@ -255,7 +268,7 @@ sub compare_to_guid {
   $_uuid_gen->compare($self->as_binary, $other_binary);
 }
 
-=head2 C< as_binary >
+=head2 as_binary
 
 This method returns the packed binary representation of the GUID.  At present
 this method relies on Data::GUID's underlying use of Data::UUID.  It is not
@@ -288,23 +301,23 @@ fully qualified name is incorrect.
 
 =cut
 
-=head2 C< guid >
+=head2 guid
 
 This routine returns a new Data::GUID object.
 
-=head2 C< guid_string >
+=head2 guid_string
 
 This returns the string representation of a new GUID.
 
-=head2 C< guid_hex >
+=head2 guid_hex
 
 This returns the hex representation of a new GUID.
 
-=head2 C< guid_base64 >
+=head2 guid_base64
 
 This returns the base64 representation of a new GUID.
 
-=head2 C< guid_from_anything >
+=head2 guid_from_anything
 
 This returns the result of calling the C<L</from_any_string>> method.
 
@@ -336,7 +349,7 @@ sub _curry_class {
 my %exports;
 BEGIN {
   %exports
-    = map { my $method = $_; $_ => sub { _curry_class($_[0], $method) } } 
+    = map { my $method = $_; $_ => sub { _curry_class($_[0], $method) } }
     ((map { "guid_$_" } keys %type), 'guid');
 }
 
