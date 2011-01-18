@@ -17,25 +17,25 @@ for my $gen_pair (
 
   like(
     $guid->as_string,
-    Data::GUID->__type_regex('string'),
+    Data::GUID->string_guid_regex,
     "$gen_name: GUID as_string looks OK",
   );
 
   like(
     "$guid",
-    Data::GUID->__type_regex('string'),
+    Data::GUID->string_guid_regex,
     "$gen_name: stringified GUID looks OK",
   );
 
   like(
     $guid->as_hex,
-    Data::GUID->__type_regex('hex'),
+    Data::GUID->hex_guid_regex,
     "$gen_name: GUID as_hex looks OK",
   );
 
   like(
     $guid->as_base64,
-    Data::GUID->__type_regex('base64'),
+    Data::GUID->base64_guid_regex,
     "$gen_name: GUID as_hex looks OK",
   );
 
@@ -105,9 +105,10 @@ for my $gen_pair (
       );
     }
 
+    my $re_method = "$type\_guid_regex";
     like(
       $guid_str,
-      Data::GUID->__type_regex($type),
+      Data::GUID->$re_method,
       "$gen_name: guid_$type method ok"
     );
   }

@@ -101,6 +101,12 @@ BEGIN { # because %type must be populated for method/exporter generation
     hex    => [ 'hexstring',  qr/\A0x$hex{32}\z/,                        ],
     base64 => [ 'b64string',  qr/\A$base64{24}\z/,                       ],
   );
+
+  for my $key (keys %type) {
+    no strict 'refs';
+    my $subname = "$key\_guid_regex";
+    *$subname = sub { $type{ $key }[1] }
+  }
 }
 
 # provided for test scripts
