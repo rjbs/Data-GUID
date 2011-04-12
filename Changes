@@ -1,5 +1,11 @@
 Revision history for Data-GUID
 
+0.046   2011-01-18
+
+        match guid strings with no hyphens
+
+        make the guid-matching regexes public
+
 0.045   2009-01-16
         add repo info to metadata
 
