@@ -1,23 +1,11 @@
-package Data::GUID;
-
-use warnings;
 use strict;
+use warnings;
+package Data::GUID;
+# ABSTRACT: globally unique identifiers
 
 use Carp ();
-use Data::UUID;
-use Sub::Install;
-
-=head1 NAME
-
-Data::GUID - globally unique identifiers
-
-=head1 VERSION
-
-version 0.046
-
-=cut
-
-our $VERSION = '0.046';
+use Data::UUID 1.148;
+use Sub::Install 0.03;
 
 =head1 SYNOPSIS
 
@@ -353,7 +341,7 @@ BEGIN {
     ((map { "guid_$_" } keys %type), 'guid');
 }
 
-use Sub::Exporter -setup => {
+use Sub::Exporter 0.90 -setup => {
   exports => {
     %exports, # defined just above
     guid_from_anything => sub { _curry_class($_[0], 'from_any_string', 1) },
@@ -362,33 +350,10 @@ use Sub::Exporter -setup => {
 
 =head1 TODO
 
-=over
-
-=item * add namespace support
-
-=item * remove dependency on wretched Data::UUID
-
-=item * make it work on 5.005
-
-=back
-
-=head1 AUTHOR
-
-Ricardo SIGNES, C<< <rjbs@cpan.org> >>
-
-=head1 BUGS
-
-Please report any bugs or feature requests to
-C<bug-data-guid@rt.cpan.org>, or through the web interface at
-L<http://rt.cpan.org>.  I will be notified, and then you'll automatically be
-notified of progress on your bug as I make changes.
-
-=head1 COPYRIGHT
-
-Copyright 2006 Ricardo Signes, All Rights Reserved.
-
-This program is free software; you can redistribute it and/or modify it
-under the same terms as Perl itself.
+=for :list
+* add namespace support
+* remove dependency on wretched Data::UUID
+* make it work on 5.005
 
 =cut
 
