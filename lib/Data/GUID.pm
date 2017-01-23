@@ -36,11 +36,20 @@ This method returns a new globally unique identifier.
 
 =cut
 
-my $_uuid_gen = Data::UUID->new;
+my $_uuid_gen_obj;
+my $_uuid_gen_pid;
+my $_uuid_gen = sub {
+  return $_uuid_gen_obj if $_uuid_gen_obj
+                        && $_uuid_gen_pid == $$;
+
+  $_uuid_gen_pid = $$;
+  $_uuid_gen_obj = Data::UUID->new;
+};
+
 sub new {
   my ($class) = @_;
 
-  return $class->from_data_uuid($_uuid_gen->create);
+  return $class->from_data_uuid($_uuid_gen->()->create);
 }
 
 =head1 GUIDS FROM EXISTING VALUES
@@ -121,7 +130,7 @@ sub _install_from_method {
     my ($class, $string) = @_;
     $string ||= q{}; # to avoid (undef =~) warning
     Carp::croak qq{"$string" is not a valid $type GUID} if $string !~ $regex;
-    $class->from_data_uuid( $_uuid_gen->$alien_from_method($string) );
+    $class->from_data_uuid( $_uuid_gen->()->$alien_from_method($string) );
   };
 
   Sub::Install::install_sub({ code => $our_from_code, as => "from_$type" });
@@ -134,7 +143,7 @@ sub _install_as_method {
 
   my $our_to_method = sub {
     my ($self) = @_;
-    $_uuid_gen->$alien_to_method( $self->as_binary );
+    $_uuid_gen->()->$alien_to_method( $self->as_binary );
   };
 
   Sub::Install::install_sub({ code => $our_to_method, as => "as_$type" });
@@ -253,7 +262,7 @@ sub compare_to_guid {
   my $other_binary
     = eval { $other->isa('Data::GUID') } ? $other->as_binary : $other;
 
-  $_uuid_gen->compare($self->as_binary, $other_binary);
+  $_uuid_gen->()->compare($self->as_binary, $other_binary);
 }
 
 =head2 as_binary
