@@ -1,6 +1,8 @@
 Revision history for Data-GUID
 
 {{$NEXT}}
+        - update author contact info
+        - add perl-support section in docs
 
 0.049     2017-01-23 19:04:58-05:00 America/New_York
         - Data::UUID can sometimes produce duplicate UUIDs when a single UUID
